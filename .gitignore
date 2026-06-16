@@ -198,6 +198,8 @@ benchmark_results/
 
 # Headroom specific
 .headroom/
+.claude/
+.claude-plugin/
 headroom.db
 headroom_*.db
 *.jsonl
