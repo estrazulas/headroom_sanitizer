@@ -14,6 +14,9 @@ import re
 from datetime import datetime, timedelta, timezone
 
 import click
+
+from .main import main
+
 from rich.console import Console
 from rich.table import Table
 
@@ -97,7 +100,7 @@ def _resolve_caller_identity() -> tuple[str, str, str, str] | None:
 # ---------------------------------------------------------------------------
 
 
-@click.group(name="audit")
+@main.group(name="audit")
 def audit_group() -> None:
     """Query usage audit and analytics.
 

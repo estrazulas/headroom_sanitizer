@@ -257,3 +257,5 @@ uv.lock
 /headroom/_core.so
 .tokensave
 dummy/
+.env.test
+.venv-test/

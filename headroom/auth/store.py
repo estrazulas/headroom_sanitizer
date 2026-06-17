@@ -439,7 +439,7 @@ class Neo4jAuthStore:
             """
             MATCH (k:ApiKey {key_hash: $key_hash, is_active: true})
             WHERE k.expires_at IS NULL OR k.expires_at > datetime()
-            MATCH (k)-[:OWNS_KEY]->(u:User {is_active: true})
+            MATCH (u:User {is_active: true})-[:OWNS_KEY]->(k)
             MATCH (r:Role {name: u.role})
             RETURN u.user_id AS user_id, u.username AS username,
                    u.role AS role, u.team AS team,
