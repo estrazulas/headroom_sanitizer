@@ -1,4 +1,4 @@
-"""``headroom audit`` — query usage audit and analytics.
+"""``headroom usage`` — query proxy usage analytics and audit trail.
 
 Structured queries (``user``, ``team``, ``top``, ``summary``) read from
 Neo4j ``(:RequestLog)`` nodes. Semantic search (``search``) reads from
@@ -100,9 +100,9 @@ def _resolve_caller_identity() -> tuple[str, str, str, str] | None:
 # ---------------------------------------------------------------------------
 
 
-@main.group(name="audit")
-def audit_group() -> None:
-    """Query usage audit and analytics.
+@main.group(name="usage")
+def usage_group() -> None:
+    """Query proxy usage and analytics.
 
     Requires authenticated users (PRD 2). Role-based access:
     developer sees own data, team lead sees team, admin sees all.
@@ -115,13 +115,13 @@ def audit_group() -> None:
 # ---------------------------------------------------------------------------
 
 
-@audit_group.command("user")
+@usage_group.command("user")
 @click.argument("username", required=False)
 @click.option("--self", "self_scope", is_flag=True, help="View your own usage.")
 @click.option("--last", "last_duration", default="7d", help="Time range (e.g., 24h, 7d, 2w).")
 @click.option("--by-day", is_flag=True, help="Break down by day.")
 @click.option("--by-model", is_flag=True, help="Break down by model.")
-def audit_user(
+def usage_user(
     username: str | None,
     self_scope: bool,
     last_duration: str,
@@ -132,11 +132,11 @@ def audit_user(
 
     \b
     Examples:
-        headroom audit user alice --last 7d
-        headroom audit user --self --last 7d --by-model
+        headroom usage user alice --last 7d
+        headroom usage user --self --last 7d --by-model
     """
-    from headroom.audit.access import AuditAccessError, enforce_scope, resolve_scope
-    from headroom.audit.store import AuditStore
+    from headroom.usage.access import AuditAccessError, enforce_scope, resolve_scope
+    from headroom.usage.store import AuditStore
 
     identity = _resolve_caller_identity()
     if identity is None:
@@ -222,14 +222,14 @@ def audit_user(
 # ---------------------------------------------------------------------------
 
 
-@audit_group.command("team")
+@usage_group.command("team")
 @click.argument("team_name", required=True)
 @click.option("--last", "last_duration", default="7d", help="Time range.")
 @click.option("--by-model", is_flag=True, help="Break down by model.")
-def audit_team(team_name: str, last_duration: str, by_model: bool) -> None:
+def usage_team(team_name: str, last_duration: str, by_model: bool) -> None:
     """Show usage aggregated by team."""
-    from headroom.audit.access import AuditAccessError, enforce_scope, resolve_scope
-    from headroom.audit.store import AuditStore
+    from headroom.usage.access import AuditAccessError, enforce_scope, resolve_scope
+    from headroom.usage.store import AuditStore
 
     identity = _resolve_caller_identity()
     if identity is None:
@@ -279,15 +279,15 @@ def audit_team(team_name: str, last_duration: str, by_model: bool) -> None:
 # ---------------------------------------------------------------------------
 
 
-@audit_group.command("top")
+@usage_group.command("top")
 @click.option("--by-tokens", "by_tokens", is_flag=True, default=True, help="Rank by tokens (default).")
 @click.option("--by-requests", "by_requests", is_flag=True, help="Rank by request count.")
 @click.option("--last", "last_duration", default="7d", help="Time range.")
 @click.option("--limit", "limit", default=10, type=int, help="Number of users to show.")
-def audit_top(last_duration: str, limit: int, by_tokens: bool, by_requests: bool) -> None:
+def usage_top(last_duration: str, limit: int, by_tokens: bool, by_requests: bool) -> None:
     """Show top users by token or request consumption."""
-    from headroom.audit.access import resolve_scope
-    from headroom.audit.store import AuditStore
+    from headroom.usage.access import resolve_scope
+    from headroom.usage.store import AuditStore
 
     identity = _resolve_caller_identity()
     if identity is None:
@@ -320,11 +320,11 @@ def audit_top(last_duration: str, limit: int, by_tokens: bool, by_requests: bool
 # ---------------------------------------------------------------------------
 
 
-@audit_group.command("summary")
+@usage_group.command("summary")
 @click.option("--last", "last_duration", default="24h", help="Time range.")
-def audit_summary(last_duration: str) -> None:
+def usage_summary(last_duration: str) -> None:
     """Show aggregate proxy usage totals."""
-    from headroom.audit.store import AuditStore
+    from headroom.usage.store import AuditStore
 
     since = _parse_duration(last_duration)
     store = AuditStore()
@@ -354,7 +354,7 @@ def audit_summary(last_duration: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-@audit_group.command("search")
+@usage_group.command("search")
 @click.argument("query")
 @click.option("--user", "filter_user", default=None, help="Filter by username.")
 @click.option("--team", "filter_team", default=None, help="Filter by team.")
@@ -362,7 +362,7 @@ def audit_summary(last_duration: str) -> None:
 @click.option("--model", "filter_model", default=None, help="Filter by model.")
 @click.option("--last", "last_duration", default="30d", help="Time range.")
 @click.option("--min-score", "min_score", default=0.7, type=float, help="Minimum similarity (0-1).")
-def audit_search(
+def usage_search(
     query: str,
     filter_user: str | None,
     filter_team: str | None,
@@ -372,8 +372,8 @@ def audit_search(
     min_score: float,
 ) -> None:
     """Semantic search over request history (via Qdrant embeddings)."""
-    from headroom.audit.access import AuditAccessError, enforce_scope, resolve_scope
-    from headroom.audit.semantic import SemanticLogger
+    from headroom.usage.access import AuditAccessError, enforce_scope, resolve_scope
+    from headroom.usage.semantic import SemanticLogger
 
     identity = _resolve_caller_identity()
     if identity is None:
@@ -446,10 +446,10 @@ def audit_search(
 # ---------------------------------------------------------------------------
 
 
-@audit_group.command("purge")
+@usage_group.command("purge")
 @click.option("--before", "before_date", required=True, help="Purge records before this date (YYYY-MM-DD).")
 @click.option("--yes", "skip_confirm", is_flag=True, help="Skip confirmation prompt.")
-def audit_purge(before_date: str, skip_confirm: bool) -> None:
+def usage_purge(before_date: str, skip_confirm: bool) -> None:
     """Remove audit data older than the given date (Neo4j + Qdrant)."""
     try:
         threshold = datetime.strptime(before_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
@@ -464,8 +464,8 @@ def audit_purge(before_date: str, skip_confirm: bool) -> None:
             click.echo("Aborted.")
             return
 
-    from headroom.audit.semantic import SemanticLogger
-    from headroom.audit.store import AuditStore
+    from headroom.usage.semantic import SemanticLogger
+    from headroom.usage.store import AuditStore
 
     store = AuditStore()
     neo4j_count = store.purge_before(threshold)

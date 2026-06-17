@@ -2,7 +2,7 @@
 
 import pytest
 
-from headroom.audit.access import (
+from headroom.usage.access import (
     AuditAccessError,
     Scope,
     enforce_scope,

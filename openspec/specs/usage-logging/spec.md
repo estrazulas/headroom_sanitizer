@@ -1,4 +1,4 @@
-# audit-logging
+# usage-logging
 
 Asynchronous `(:RequestLog)` persistence to Neo4j with in-memory buffer and batch flush.
 

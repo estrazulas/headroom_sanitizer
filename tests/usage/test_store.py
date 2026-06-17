@@ -29,7 +29,7 @@ def _neo4j_available() -> bool:
 class TestAuditStore:
     @pytest.fixture
     def store(self):
-        from headroom.audit.store import AuditStore
+        from headroom.usage.store import AuditStore
         return AuditStore()
 
     def test_insert_batch_empty(self, store) -> None:

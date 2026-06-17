@@ -1,10 +1,10 @@
-# audit-semantic
+# usage-semantic
 
 Best-effort Qdrant logging with local fastembed embeddings for semantic search over request history.
 
 ## Purpose
 
-Generate a 384-dimensional embedding from a short textual summary of each authenticated request and upsert it to the `headroom_request_logs` Qdrant collection. Embeddings are generated locally via fastembed (BAAI/bge-small-en-v1.5, ONNX, zero API cost). Qdrant logging is best-effort — if Qdrant or fastembed are unavailable, Neo4j logging continues unaffected. Semantic logging can be disabled via `--no-audit-semantic` or `HEADROOM_AUDIT_SEMANTIC_ENABLED=false`.
+Generate a 384-dimensional embedding from a short textual summary of each authenticated request and upsert it to the `headroom_request_logs` Qdrant collection. Embeddings are generated locally via fastembed (BAAI/bge-small-en-v1.5, ONNX, zero API cost). Qdrant logging is best-effort — if Qdrant or fastembed are unavailable, Neo4j logging continues unaffected. Semantic logging can be disabled via `--no-usage-semantic` or `HEADROOM_AUDIT_SEMANTIC_ENABLED=false`.
 
 ## Requirements
 
@@ -28,10 +28,10 @@ The system SHALL generate an embedding from a short textual summary of each auth
 - **AND** Neo4j logging continues normally
 
 ### Requirement: Semantic search can be disabled
-The system SHALL support a `--no-audit-semantic` flag (or `HEADROOM_AUDIT_SEMANTIC_ENABLED=false`) that disables Qdrant logging entirely.
+The system SHALL support a `--no-usage-semantic` flag (or `HEADROOM_AUDIT_SEMANTIC_ENABLED=false`) that disables Qdrant logging entirely.
 
 #### Scenario: Semantic logging disabled
-- **WHEN** the proxy starts with `--no-audit-semantic`
+- **WHEN** the proxy starts with `--no-usage-semantic`
 - **THEN** no embeddings are generated
 - **AND** no upserts are made to Qdrant
 - **AND** Neo4j logging continues normally

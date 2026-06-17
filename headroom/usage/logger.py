@@ -13,11 +13,11 @@ import os
 import uuid
 from datetime import datetime, timezone
 
-from headroom.audit.buffer import AuditBuffer
-from headroom.audit.store import AuditStore
-from headroom.audit.semantic import SemanticLogger
+from headroom.usage.buffer import AuditBuffer
+from headroom.usage.store import AuditStore
+from headroom.usage.semantic import SemanticLogger
 
-log = logging.getLogger("headroom.audit")
+log = logging.getLogger("headroom.usage")
 
 
 class AuditLogger:

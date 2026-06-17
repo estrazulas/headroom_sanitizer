@@ -32,9 +32,9 @@ class TestAuditCLIBasic:
     def runner(self) -> CliRunner:
         return CliRunner()
 
-    def test_audit_group_help(self, runner: CliRunner) -> None:
-        from headroom.cli.audit import audit_group
-        result = runner.invoke(audit_group, ["--help"])
+    def test_usage_group_help(self, runner: CliRunner) -> None:
+        from headroom.cli.usage import usage_group
+        result = runner.invoke(usage_group, ["--help"])
         assert result.exit_code == 0
         assert "user" in result.output
         assert "team" in result.output
@@ -44,29 +44,29 @@ class TestAuditCLIBasic:
         assert "purge" in result.output
 
     def test_duration_parser_valid(self) -> None:
-        from headroom.cli.audit import _parse_duration
+        from headroom.cli.usage import _parse_duration
         assert _parse_duration("24h") is not None
         assert _parse_duration("7d") is not None
         assert _parse_duration("2w") is not None
         assert _parse_duration("3m") is not None
 
     def test_duration_parser_invalid(self) -> None:
-        from headroom.cli.audit import _parse_duration
+        from headroom.cli.usage import _parse_duration
         import click
         with pytest.raises(click.BadParameter, match="Invalid duration"):
             _parse_duration("foo")
 
     @pytest.mark.skipif(not _neo4j_available(), reason="Neo4j not available")
-    def test_audit_user_self(self, runner: CliRunner) -> None:
-        from headroom.cli.audit import audit_user
+    def test_usage_user_self(self, runner: CliRunner) -> None:
+        from headroom.cli.usage import usage_user
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
-        result = runner.invoke(audit_user, ["--self", "--last", "24h"])
+        result = runner.invoke(usage_user, ["--self", "--last", "24h"])
         # Will fail identity resolution but the command parses correctly
         assert "could not resolve" in result.output.lower() or result.exit_code == 0
 
     @pytest.mark.skipif(not _neo4j_available(), reason="Neo4j not available")
-    def test_audit_summary(self, runner: CliRunner) -> None:
-        from headroom.cli.audit import audit_summary
+    def test_usage_summary(self, runner: CliRunner) -> None:
+        from headroom.cli.usage import usage_summary
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
-        result = runner.invoke(audit_summary, ["--last", "24h"])
+        result = runner.invoke(usage_summary, ["--last", "24h"])
         assert "could not resolve" in result.output.lower() or result.exit_code == 0

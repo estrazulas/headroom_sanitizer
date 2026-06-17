@@ -58,7 +58,7 @@ def _register_commands() -> None:
 
     # Audit requires neo4j — optional
     try:
-        from . import audit  # noqa: F401
+        from . import usage  # noqa: F401
     except ImportError:
         pass
 
