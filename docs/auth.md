@@ -71,6 +71,37 @@ Now pick a connection method below.
 
 ---
 
+## Provider URLs (admin)
+
+By default the proxy routes requests to the official APIs:
+
+| Path | Default URL |
+|------|-------------|
+| `/v1/messages` (Anthropic) | `https://api.anthropic.com` |
+| `/v1/chat/completions` (OpenAI) | `https://api.openai.com` |
+| `/v1beta/models/...` (Gemini) | `https://generativelanguage.googleapis.com` |
+
+To use **alternative providers** (DeepSeek, Fireworks, OpenRouter, etc.),
+override with flags or env vars when starting the proxy:
+
+```bash
+# Flags
+headroom proxy --port 8787 --proxy-extension headroom-auth \
+  --anthropic-api-url https://api.deepseek.com/anthropic \
+  --openai-api-url https://api.deepseek.com
+
+# Or env vars (useful for docker compose)
+export ANTHROPIC_TARGET_API_URL=https://api.deepseek.com/anthropic
+export OPENAI_TARGET_API_URL=https://api.deepseek.com
+export GEMINI_TARGET_API_URL=https://generativelanguage.googleapis.com
+headroom proxy --port 8787 --proxy-extension headroom-auth
+```
+
+The interactive installer (`scripts/headroom-setup`) asks for these URLs
+during setup and writes them to `~/.config/headroom/env`.
+
+---
+
 ## Method 1 — Wrapper (simplest)
 
 Use the `headroom-connect` wrapper script. It sets the environment and

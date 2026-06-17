@@ -6,8 +6,10 @@
 #   2. Encryption key (auto-generated)
 #   3. Database initialization
 #   4. Admin user + API key
-#   5. Provider keys (Anthropic, OpenAI)
-#   6. Config file generation
+#   5. Provider keys (Anthropic, OpenAI, Gemini)
+#   6. Provider URLs (optional — custom endpoints like DeepSeek)
+#   7. Optional: create a developer user
+#   8. Config file generation
 #
 # After this script, the proxy is ready to start and the admin has
 # their API key.  Run this from the repo root.
@@ -135,12 +137,14 @@ fi
 echo
 
 # ---- step 5: provider keys -----------------------------------------------
-echo "$(bold "Step 5/6 — Provider keys")"
+echo "$(bold "Step 5/8 — Provider keys")"
 echo "  Register the API keys your organization uses for LLM providers."
 echo "  These are stored encrypted in Neo4j and injected by the proxy."
 echo "  Leave blank to skip a provider."
 echo
 
+# Track which providers were configured (for step 6 URL prompts)
+declare -A PROVIDER_CONFIGURED
 PROVIDERS=("anthropic:Anthropic" "openai:OpenAI" "gemini:Gemini")
 for pair in "${PROVIDERS[@]}"; do
     slug="${pair%%:*}"
@@ -151,14 +155,78 @@ for pair in "${PROVIDERS[@]}"; do
             warn "${label} key stored but validation returned a warning (may be expected for non-standard endpoints)"
         }
         green "${label} key stored"
+        PROVIDER_CONFIGURED["$slug"]=1
     else
         echo "  (skipped ${label})"
     fi
 done
 echo
 
-# ---- step 6: config files ------------------------------------------------
-echo "$(bold "Step 6/6 — Configuration files")"
+# ---- step 6: provider URLs ------------------------------------------------
+echo "$(bold "Step 6/8 — Provider URLs")"
+echo "  By default the proxy routes requests to the official APIs:"
+echo "    /v1/messages          → https://api.anthropic.com"
+echo "    /v1/chat/completions  → https://api.openai.com"
+echo "    /v1beta/models/...    → https://generativelanguage.googleapis.com"
+echo
+echo "  You can override these — for example to use DeepSeek's"
+echo "  Anthropic-compatible endpoint instead of Anthropic directly:"
+echo "    --anthropic-api-url https://api.deepseek.com/anthropic"
+echo "    --openai-api-url https://api.deepseek.com"
+echo
+
+PROVIDER_URLS=(
+    "anthropic:Anthropic:ANTHROPIC_TARGET_API_URL"
+    "openai:OpenAI:OPENAI_TARGET_API_URL"
+    "gemini:Gemini:GEMINI_TARGET_API_URL"
+)
+for trio in "${PROVIDER_URLS[@]}"; do
+    IFS=':' read -r slug label envvar <<< "$trio"
+    if [[ -n "${PROVIDER_CONFIGURED[$slug]:-}" ]]; then
+        DEFAULT_URL=""
+        REPLY=$(prompt "  ${label} URL (leave blank for default)")
+        if [[ -n "$REPLY" ]]; then
+            echo "export ${envvar}=${REPLY}" >> "$CONFIG_DIR/env.tmp"
+            green "${label} → ${REPLY}"
+        else
+            echo "  ${label}: using default official API"
+        fi
+    else
+        echo "  ${label}: skipped (no key configured)"
+    fi
+done
+echo
+echo "  $(bold "Tip:") These are set as env vars. You can also pass them"
+echo "  as flags when starting the proxy:"
+echo "    headroom proxy --anthropic-api-url ... --openai-api-url ..."
+echo
+
+# ---- step 7: developer user (optional) ------------------------------------
+echo "$(bold "Step 7/8 — Developer user (optional)")"
+echo "  Create a developer account now so someone can start using the proxy."
+ADD_DEV=$(prompt_default "  Create a developer user?" "n")
+if [[ "$ADD_DEV" =~ ^[Yy] ]]; then
+    DEV_USER=$(prompt_default "  Developer username" "bob")
+    DEV_TEAM=$(prompt_default "  Team name" "developers")
+    echo "  Creating team '${DEV_TEAM}'..."
+    "$HEADROOM_BIN" auth create-team "$DEV_TEAM" 2>&1 || true
+    echo "  Creating user '${DEV_USER}' with role developer..."
+    "$HEADROOM_BIN" auth create-user "$DEV_USER" --role developer --team "$DEV_TEAM" 2>&1 || true
+    echo "  Generating API key for '${DEV_USER}'..."
+    DEV_KEY=$("$HEADROOM_BIN" auth create-key "$DEV_USER" 2>&1 | grep -oP 'hr_[a-f0-9]+' || true)
+    if [[ -n "$DEV_KEY" ]]; then
+        green "Developer API key for ${DEV_USER}: ${DEV_KEY}"
+        echo "  $(bold 'Share this key with the developer — it will not be shown again.')"
+    else
+        warn "Could not parse API key. Check output above."
+    fi
+else
+    echo "  (skipped — you can create users later with headroom auth create-user)"
+fi
+echo
+
+# ---- step 8: config files ------------------------------------------------
+echo "$(bold "Step 8/8 — Configuration files")"
 
 CONFIG_DIR="$HOME/.config/headroom"
 mkdir -p "$CONFIG_DIR"
@@ -171,6 +239,13 @@ HEADROOM_API_KEY=${ADMIN_KEY}
 HEADROOM_ENCRYPTION_KEY=${HEADROOM_ENCRYPTION_KEY}
 # HEADROOM_PROXY_URL=http://proxy.empresa.com:8787
 INNER
+
+# Append provider URL overrides if any were set
+if [[ -f "$CONFIG_DIR/env.tmp" ]]; then
+    cat "$CONFIG_DIR/env.tmp" >> "$CONFIG_FILE"
+    rm -f "$CONFIG_DIR/env.tmp"
+fi
+
 chmod 600 "$CONFIG_FILE"
 green "$CONFIG_FILE written (chmod 600)"
 
@@ -197,18 +272,31 @@ echo "  ╚═══════════════════════
 echo
 echo "  $(bold "Next steps:")"
 echo
-echo "  1. Start the proxy with auth:"
+echo "  1. Start the proxy with auth"
+echo "     $(bold "source ~/.config/headroom/env")"
 echo "     $(bold "headroom proxy --port 8787 --proxy-extension headroom-auth")"
 echo
-echo "  2. Connect Claude Code:"
+echo "     If you set custom provider URLs, include them:"
+echo "     $(bold "headroom proxy --port 8787 --proxy-extension headroom-auth \\")"
+echo "       $(bold "--anthropic-api-url \$ANTHROPIC_TARGET_API_URL \\")"
+echo "       $(bold "--openai-api-url \$OPENAI_TARGET_API_URL")"
+echo
+echo "  2. Connect your client:"
 echo "     $(bold "./scripts/headroom-connect \"Hello\"")"
 echo
-echo "  3. Onboard a developer:"
-echo "     $(bold "headroom auth create-user bob --role developer --team backend")"
-echo "     $(bold "headroom auth create-key bob")"
-echo "     # Share the hr_... key — they put it in ~/.config/headroom/env"
-echo
-echo "  4. More: $(bold "docs/auth.md")"
+if [[ -n "${DEV_KEY:-}" ]]; then
+    echo "  3. The developer key for '${DEV_USER}' is:"
+    echo "     $(bold "${DEV_KEY}")"
+    echo "     They should save it in ~/.config/headroom/env"
+    echo
+    echo "  4. More: $(bold "docs/auth.md")"
+else
+    echo "  3. Onboard developers later:"
+    echo "     $(bold "headroom auth create-user bob --role developer --team backend")"
+    echo "     $(bold "headroom auth create-key bob")"
+    echo
+    echo "  4. More: $(bold "docs/auth.md")"
+fi
 echo
 
 green "Done."
