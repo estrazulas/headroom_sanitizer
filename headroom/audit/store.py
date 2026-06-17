@@ -125,7 +125,7 @@ class AuditStore:
             return self._run(
                 """
                 MATCH (r:RequestLog {user_id: $user_id})
-                WHERE $since IS NULL OR r.timestamp >= $since
+                WHERE $since IS NULL OR r.timestamp >= datetime($since)
                 RETURN date(r.timestamp) AS date,
                        COUNT(r) AS requests,
                        SUM(r.input_tokens) AS tokens_in,
@@ -139,7 +139,7 @@ class AuditStore:
             return self._run(
                 """
                 MATCH (r:RequestLog {user_id: $user_id})
-                WHERE $since IS NULL OR r.timestamp >= $since
+                WHERE $since IS NULL OR r.timestamp >= datetime($since)
                 RETURN r.model AS model,
                        COUNT(r) AS requests,
                        SUM(r.input_tokens) AS tokens_in,
@@ -151,7 +151,7 @@ class AuditStore:
         return self._run(
             """
             MATCH (r:RequestLog {user_id: $user_id})
-            WHERE $since IS NULL OR r.timestamp >= $since
+            WHERE $since IS NULL OR r.timestamp >= datetime($since)
             RETURN COUNT(r) AS requests,
                    SUM(r.input_tokens) AS tokens_in,
                    SUM(r.output_tokens) AS tokens_out,
@@ -174,7 +174,7 @@ class AuditStore:
             return self._run(
                 """
                 MATCH (r:RequestLog {team: $team})
-                WHERE $since IS NULL OR r.timestamp >= $since
+                WHERE $since IS NULL OR r.timestamp >= datetime($since)
                 RETURN r.model AS model,
                        COUNT(r) AS requests,
                        SUM(r.input_tokens) AS tokens_in,
@@ -187,7 +187,7 @@ class AuditStore:
         return self._run(
             """
             MATCH (r:RequestLog {team: $team})
-            WHERE $since IS NULL OR r.timestamp >= $since
+            WHERE $since IS NULL OR r.timestamp >= datetime($since)
             RETURN COUNT(r) AS requests,
                    SUM(r.input_tokens) AS tokens_in,
                    SUM(r.output_tokens) AS tokens_out,
@@ -208,7 +208,7 @@ class AuditStore:
         order = "SUM(r.input_tokens) DESC" if by_tokens else "COUNT(r) DESC"
         cypher = (
             "MATCH (r:RequestLog) "
-            "WHERE $since IS NULL OR r.timestamp >= $since "
+            "WHERE $since IS NULL OR r.timestamp >= datetime($since) "
             "RETURN r.user_id AS user_id, r.username AS username, "
             "r.team AS team, COUNT(r) AS requests, "
             "SUM(r.input_tokens) AS tokens_in "
@@ -228,7 +228,7 @@ class AuditStore:
         return self._run(
             """
             MATCH (r:RequestLog)
-            WHERE $since IS NULL OR r.timestamp >= $since
+            WHERE $since IS NULL OR r.timestamp >= datetime($since)
             RETURN COUNT(r) AS total_requests,
                    SUM(r.input_tokens) AS total_tokens_in,
                    SUM(r.output_tokens) AS total_tokens_out,
@@ -252,7 +252,7 @@ class AuditStore:
         result = self._run(
             """
             MATCH (r:RequestLog)
-            WHERE r.timestamp < $before
+            WHERE r.timestamp < datetime($before)
             DETACH DELETE r
             RETURN COUNT(r) AS deleted
             """,
