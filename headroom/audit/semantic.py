@@ -137,6 +137,7 @@ class SemanticLogger:
                     "provider": provider,
                     "model": model,
                     "timestamp": timestamp.isoformat(),
+                    "timestamp_unix": timestamp.timestamp(),
                     "summary": summary[:500],
                 },
             )
@@ -188,20 +189,20 @@ class SemanticLogger:
             if since:
                 must_conditions.append(
                     FieldCondition(
-                        key="timestamp",
-                        range=Range(gte=since.isoformat()),
+                        key="timestamp_unix",
+                        range=Range(gte=since.timestamp()),
                     )
                 )
 
             query_filter = Filter(must=must_conditions) if must_conditions else None
 
-            results = self._client.search(
+            results = self._client.query_points(
                 collection_name=COLLECTION_NAME,
-                query_vector=vector,
+                query=vector,
                 query_filter=query_filter,
                 limit=limit,
                 score_threshold=min_score,
-            )
+            ).points
 
             return [
                 {
@@ -239,8 +240,8 @@ class SemanticLogger:
                 scroll_filter=Filter(
                     must=[
                         FieldCondition(
-                            key="timestamp",
-                            range=Range(lt=before_date.isoformat()),
+                            key="timestamp_unix",
+                            range=Range(lt=before_date.timestamp()),
                         )
                     ]
                 ),

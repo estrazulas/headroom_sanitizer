@@ -174,16 +174,20 @@ class AuthMiddleware:
     def _extract_auth_header(headers: list[tuple[bytes, bytes]]) -> str | None:
         """Return the bearer token, or ``None`` if absent.
 
-        Handles both ``Bearer hr_...`` (standard) and bare ``hr_...``
-        (lenient, for clients that cannot set the scheme).
+        Handles ``Authorization: Bearer hr_...`` (standard), bare ``hr_...``
+        (lenient, for clients that cannot set the scheme), and
+        ``x-api-key: hr_...`` (Anthropic-compatible clients like deepclaude).
         """
         for k, v in headers:
-            if k.lower() == b"authorization":
+            kl = k.lower()
+            if kl == b"authorization":
                 value = v.decode("ascii", errors="replace")
                 # Case-insensitive "Bearer " prefix.
                 if value.lower().startswith("bearer "):
                     return value.split(" ", 1)[1]
                 return value  # wrong scheme or bare key — let validation sort it out
+            if kl == b"x-api-key":
+                return v.decode("ascii", errors="replace")
         return None
 
     @staticmethod

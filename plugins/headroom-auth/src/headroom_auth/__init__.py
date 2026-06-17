@@ -60,7 +60,7 @@ def install(app: Any, config: Any) -> None:
     from .cache import AuthCache
     from .middleware import AuthMiddleware
 
-    auth_cache = AuthCache(store=store, crypto=crypto, ttl_seconds=cache_ttl)
+    auth_cache = AuthCache(ttl_seconds=cache_ttl)
 
     app.add_middleware(
         AuthMiddleware,

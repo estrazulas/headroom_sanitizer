@@ -9,6 +9,8 @@ from typing import Any
 
 import click
 
+from .main import main
+
 from headroom.auth.crypto import FernetCrypto, FernetCryptoError
 from headroom.auth.store import AuthStoreError, Neo4jAuthStore
 
@@ -82,7 +84,7 @@ def _parse_json_flag(json_flag: bool) -> dict[str, Any]:
 # ------------------------------------------------------------------
 
 
-@click.group(name="auth")
+@main.group(name="auth")
 def auth_group() -> None:
     """Manage users, roles, teams, API keys, and provider keys.
 
