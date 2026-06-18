@@ -17,14 +17,23 @@ echo "=== Compilando headroom v${VERSAO} ==="
 rm -rf dist/
 maturin build --release --out dist/
 
+echo "=== Compilando plugin headroom-auth ==="
+PLUGIN_DIR="plugins/headroom-auth"
+PLUGIN_VERSAO=$(grep 'version = ' "$PLUGIN_DIR/pyproject.toml" | head -1 | sed 's/.*"\(.*\)".*/\1/')
+pyproject-build --outdir dist/ "$PLUGIN_DIR"
+
 echo "=== Publicando release v${VERSAO} ==="
-gh release create "v${VERSAO}" dist/*.whl \
+gh release create "v${VERSAO}" \
+  dist/headroom_ai-*.whl \
+  dist/headroom_auth-*.whl \
   --title "v${VERSAO} — Build sanitizado" \
   --notes "Build compilado localmente a partir do commit $(git rev-parse HEAD)."
 
 echo "=== Instalando localmente ==="
-WHEEL=$(ls dist/*.whl | head -1)
+WHEEL=$(ls dist/headroom_ai-*.whl | head -1)
+PLUGIN_WHEEL=$(ls dist/headroom_auth-*.whl | head -1)
 pipx install --force "${WHEEL}[proxy,code,mcp,auth]"
+pipx inject headroom-ai "$PLUGIN_WHEEL"
 systemctl --user restart headroom.service 2>/dev/null || true
 
-echo "=== Pronto! headroom ${VERSAO} instalado e release publicado ==="
+echo "=== Pronto! headroom ${VERSAO} + headroom-auth ${PLUGIN_VERSAO} instalado e release publicado ==="
