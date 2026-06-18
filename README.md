@@ -188,10 +188,12 @@ Install the latest release wheel directly from GitHub:
 
 ```bash
 pipx install --force \
-  "https://github.com/estrazulas/headroom_sanitizer/releases/download/v0.25.1/headroom_ai-0.25.1-cp310-abi3-manylinux_2_35_x86_64.whl[proxy,code,mcp]"
+  "https://github.com/estrazulas/headroom_sanitizer/releases/download/v0.26.0.1/headroom_ai-0.26.0.1-cp310-abi3-manylinux_2_35_x86_64.whl[proxy,code,mcp,auth]"
+pipx inject headroom-ai \
+  "https://github.com/estrazulas/headroom_sanitizer/releases/download/v0.26.0.1/headroom_auth-0.1.0-py3-none-any.whl"
 ```
 
-Available extras (same as upstream plus the new `[auth]` extra):
+Available extras:
 
 | Extra | Provides |
 |-------|----------|
@@ -199,10 +201,12 @@ Available extras (same as upstream plus the new `[auth]` extra):
 | `code` | AST-based code compression (tree-sitter) |
 | `mcp` | MCP server (`headroom_compress`, `headroom_retrieve`, `headroom_stats`) |
 | `memory` | Local vector memory (hnswlib, sqlite-vec) |
-| `auth` | **New** — user management CLI, API key crypto, Neo4j auth store |
+| `auth` | User management CLI, API key crypto, Neo4j auth store deps |
 | `all` | Everything above |
 
-> **Note:** The `[auth]` extra requires a running Neo4j instance. Set `NEO4J_URI`, `NEO4J_USER`, and `NEO4J_PASSWORD` in your environment.
+The **headroom-auth plugin** (separate wheel) adds the auth middleware itself — entry-point, rate limiter, provider injection, identity propagation.
+
+> **Note:** Auth requires a running Neo4j instance. Set `NEO4J_URI`, `NEO4J_USER`, and `NEO4J_PASSWORD` in your environment.
 
 ---
 
@@ -290,7 +294,9 @@ This fork lets you compile from audited source instead of running opaque PyPI bi
 
 ```bash
 pipx install --force \
-  "https://github.com/estrazulas/headroom_sanitizer/releases/download/v0.25.1/headroom_ai-0.25.1-cp310-abi3-manylinux_2_35_x86_64.whl[proxy,code,mcp]"
+  "https://github.com/estrazulas/headroom_sanitizer/releases/download/v0.26.0.1/headroom_ai-0.26.0.1-cp310-abi3-manylinux_2_35_x86_64.whl[proxy,code,mcp,auth]"
+pipx inject headroom-ai \
+  "https://github.com/estrazulas/headroom_sanitizer/releases/download/v0.26.0.1/headroom_auth-0.1.0-py3-none-any.whl"
 ```
 
 ### Build from source
@@ -305,14 +311,21 @@ source "$HOME/.cargo/env"
 rm -rf dist/
 maturin build --release --out dist/
 
-# 3. Publish GitHub Release
+# 3. Build auth plugin
+pyproject-build --outdir dist/ plugins/headroom-auth/
+
+# 4. Publish GitHub Release
 VER=$(grep 'version = ' pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
-gh release create "v${VER}" dist/*.whl \
+PLUGIN_VER=$(grep 'version = ' plugins/headroom-auth/pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+gh release create "v${VER}" dist/headroom_ai-*.whl dist/headroom_auth-*.whl \
   --title "v${VER} — Build sanitizado" \
   --notes "Build from commit $(git rev-parse HEAD)."
 
-# 4. Install locally
-pipx install --force "dist/*.whl[proxy,code,mcp]"
+# 5. Install locally
+WHEEL=$(ls dist/headroom_ai-*.whl | head -1)
+PLUGIN_WHEEL=$(ls dist/headroom_auth-*.whl | head -1)
+pipx install --force "${WHEEL}[proxy,code,mcp,auth]"
+pipx inject headroom-ai "$PLUGIN_WHEEL"
 systemctl --user restart headroom.service
 ```
 
