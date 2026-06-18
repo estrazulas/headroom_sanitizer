@@ -215,57 +215,10 @@ The **headroom-auth plugin** (separate wheel) adds the auth middleware itself �
 
 > **Note:** Auth requires a running Neo4j instance. Set `NEO4J_URI`, `NEO4J_USER`, and `NEO4J_PASSWORD` in your environment.
 
----
-
-## Quick start — auth proxy
-
-| You are a… | Run this |
-|------------|----------|
-| **Admin** setting up the proxy | `./scripts/headroom-setup` |
-| **Developer** connecting your client | See [docs/auth.md](docs/auth.md) |
-| **Developer** using Claude Code | `./scripts/headroom-connect "prompt"` |
-
-### Admin
-
-Interactive wizard — asks for Neo4j, encryption key, users, provider keys,
-and generates config files:
-
-```bash
-./scripts/headroom-setup
-# Then start the proxy:
-source ~/.config/headroom/env
-headroom proxy --port 8787 --proxy-extension headroom-auth
-```
-
-### Developer — connect with Claude Code
-
-One-time setup, then just use the wrapper:
-
-```bash
-# 1. Save your API key (given by your admin)
-mkdir -p ~/.config/headroom
-cp scripts/headroom-env.template ~/.config/headroom/env
-# edit ~/.config/headroom/env → paste your HEADROOM_API_KEY
-chmod 600 ~/.config/headroom/env
-
-# 2. Connect
-./scripts/headroom-connect "Explain Python decorators"
-
-# With custom proxy URL (if not localhost)
-./scripts/headroom-connect --proxy-url http://proxy.empresa.com:8787 "Hello"
-
-# Pass flags to Claude Code
-./scripts/headroom-connect -- --model claude-sonnet-4-6 --max-turns 10
-```
-
-For curl, OpenAI SDK, Anthropic SDK, and troubleshooting: **[docs/auth.md](docs/auth.md)**.
+For a streamlined setup with systemd, DeepClaude wrappers, and
+multi-mode installation, see the companion repo: **[deepclaude_with_headroom](https://github.com/estrazulas/deepclaude_with_headroom)**.
 
 ### Easy setup instructions
-
-For a **complete end-to-end installation** with systemd service,
-DeepClaude wrappers, and multi-mode setup, see the companion repo:
-
-**[deepclaude_with_headroom](https://github.com/estrazulas/deepclaude_with_headroom)**
 
 `install.sh` provides three modes:
 
