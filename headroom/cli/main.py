@@ -32,6 +32,15 @@ def main(ctx: click.Context) -> None:
     """
     ctx.ensure_object(dict)
 
+    # Load ~/.config/headroom/env so CLI subcommands (auth, usage, audit)
+    # can reach Neo4j/Qdrant/encryption keys without a manual `source`.
+    try:
+        from headroom.gate_config import load_gate_config
+
+        load_gate_config()
+    except Exception:  # noqa: BLE001 — config loading must never break the CLI
+        pass
+
     # Fire a rate-limited, opt-out background check for newer releases so other
     # surfaces (e.g. the proxy banner) can show an "update available" notice.
     # Never blocks, never raises; skipped for `update` (it checks explicitly).
