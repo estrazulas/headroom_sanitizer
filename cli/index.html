@@ -3494,6 +3494,11 @@
 <td>Maximum upstream retry attempts</td>
 </tr>
 <tr>
+<td><code>--request-timeout-seconds</code></td>
+<td>runtime default <code>300</code></td>
+<td>Request timeout in seconds</td>
+</tr>
+<tr>
 <td><code>--connect-timeout-seconds</code></td>
 <td>runtime default <code>10</code></td>
 <td>Upstream connection timeout</td>
@@ -3539,19 +3544,19 @@
 <td>Disable stale/superseded read compression</td>
 </tr>
 <tr>
-<td><code>--no-intelligent-context</code></td>
+<td><code>--no-ccr-inject-tool</code></td>
 <td>off</td>
-<td>Disable intelligent context manager</td>
+<td>Disable injecting the <code>headroom_retrieve</code> tool</td>
 </tr>
 <tr>
-<td><code>--no-intelligent-scoring</code></td>
+<td><code>--no-ccr-marker</code></td>
 <td>off</td>
-<td>Disable multi-factor importance scoring</td>
+<td>Disable adding retrieval markers to compressed output</td>
 </tr>
 <tr>
-<td><code>--no-compress-first</code></td>
+<td><code>--no-ccr-proactive-expansion</code></td>
 <td>off</td>
-<td>Disable deep compression before dropping messages</td>
+<td>Disable proactive CCR context expansion</td>
 </tr>
 <tr>
 <td><code>--memory</code></td>
@@ -3643,7 +3648,7 @@
 <p>Notes:</p>
 <ul>
 <li><code>--learn</code> implies memory unless <code>--no-learn</code> is also set.</li>
-<li>Proxy startup can also read environment variables such as <code>HEADROOM_HOST</code>, <code>HEADROOM_PORT</code>, <code>HEADROOM_BUDGET</code>, <code>HEADROOM_MODE</code>, <code>HEADROOM_ANYLLM_PROVIDER</code>, <code>HEADROOM_ANTHROPIC_PRE_UPSTREAM_CONCURRENCY</code>, <code>HEADROOM_ANTHROPIC_PRE_UPSTREAM_ACQUIRE_TIMEOUT_SECONDS</code>, <code>HEADROOM_ANTHROPIC_PRE_UPSTREAM_MEMORY_CONTEXT_TIMEOUT_SECONDS</code>, <code>ANTHROPIC_TARGET_API_URL</code>, <code>OPENAI_TARGET_API_URL</code>, and <code>GEMINI_TARGET_API_URL</code>. CLI flags take precedence over environment variables.</li>
+<li>Proxy startup can also read environment variables such as <code>HEADROOM_HOST</code>, <code>HEADROOM_PORT</code>, <code>HEADROOM_BUDGET</code>, <code>HEADROOM_MODE</code>, <code>HEADROOM_ANYLLM_PROVIDER</code>, <code>HEADROOM_ANTHROPIC_PRE_UPSTREAM_CONCURRENCY</code>, <code>HEADROOM_ANTHROPIC_PRE_UPSTREAM_ACQUIRE_TIMEOUT_SECONDS</code>, <code>HEADROOM_REQUEST_TIMEOUT</code>, <code>HEADROOM_ANTHROPIC_PRE_UPSTREAM_MEMORY_CONTEXT_TIMEOUT_SECONDS</code>, <code>ANTHROPIC_TARGET_API_URL</code>, <code>OPENAI_TARGET_API_URL</code>, and <code>GEMINI_TARGET_API_URL</code>. CLI flags take precedence over environment variables.</li>
 <li>The default Anthropic pre-upstream cap is intentionally conservative for CPU/ONNX-heavy work. Larger containers may want to raise it after checking the resolved runtime values on <code>/readyz</code> or <code>/debug/warmup</code>.</li>
 </ul>
 <p>See also: <a href="../proxy/">Proxy Server</a>, <a href="../configuration/">Configuration</a></p>
@@ -3924,7 +3929,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 <tbody>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
@@ -3974,7 +3979,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 </tr>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
@@ -3998,7 +4003,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 <tbody>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 </tbody>
@@ -4023,7 +4028,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 </tr>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
@@ -4059,7 +4064,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 </tr>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
@@ -4084,7 +4089,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 <tbody>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
@@ -4134,7 +4139,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 <tbody>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
@@ -4159,7 +4164,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 <tbody>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
@@ -4189,7 +4194,7 @@ to <code>~/.headroom/logs/proxy.log</code> — see the
 </tr>
 <tr>
 <td><code>--db-path</code></td>
-<td><code>headroom_memory.db</code></td>
+<td><code>./.headroom/memory.db</code> if present, else <code>~/.headroom/memory.db</code></td>
 <td>Memory database path</td>
 </tr>
 <tr>
