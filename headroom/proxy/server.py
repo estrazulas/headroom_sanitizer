@@ -1476,7 +1476,7 @@ class HeadroomProxy(
         # Identity is read from contextvars — if auth is disabled, user_id
         # is None and the call is a silent no-op.
         try:
-            from headroom.audit.logger import _audit_logger
+            from headroom.usage.logger import _audit_logger
 
             if _audit_logger is not None:
                 _audit_logger.log(outcome)
@@ -1831,7 +1831,7 @@ def create_app(config: ProxyConfig | None = None) -> FastAPI:
                 # Audit logging (PRD 3): starts async buffer flush.
                 # When auth is disabled, user_id is None and logging is a no-op.
                 try:
-                    from headroom.audit.logger import init_audit_logger, start_audit_logger
+                    from headroom.usage.logger import init_audit_logger, start_audit_logger
 
                     init_audit_logger()
                     await start_audit_logger()
@@ -1875,7 +1875,7 @@ def create_app(config: ProxyConfig | None = None) -> FastAPI:
                 proxy.code_graph_watcher.stop()
             # Flush and stop audit buffer (PRD 3)
             try:
-                from headroom.audit.logger import stop_audit_logger
+                from headroom.usage.logger import stop_audit_logger
                 await stop_audit_logger()
             except Exception:
                 logger.debug("audit logger stop skipped", exc_info=True)

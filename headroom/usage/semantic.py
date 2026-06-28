@@ -15,7 +15,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-log = logging.getLogger("headroom.audit.semantic")
+log = logging.getLogger("headroom.usage.semantic")
 
 COLLECTION_NAME = "headroom_request_logs"
 VECTOR_SIZE = 384

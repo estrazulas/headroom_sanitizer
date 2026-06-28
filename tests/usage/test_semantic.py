@@ -25,12 +25,12 @@ class TestSemanticLoggerDisabled:
     """Tests that work without Qdrant."""
 
     def test_disabled_logger_is_not_available(self) -> None:
-        from headroom.audit.semantic import SemanticLogger
+        from headroom.usage.semantic import SemanticLogger
         logger = SemanticLogger(enabled=False)
         assert logger.is_available is False
 
     def test_disabled_log_request_is_noop(self) -> None:
-        from headroom.audit.semantic import SemanticLogger
+        from headroom.usage.semantic import SemanticLogger
         logger = SemanticLogger(enabled=False)
         # Should not raise
         logger.log_request(
@@ -40,19 +40,19 @@ class TestSemanticLoggerDisabled:
         )
 
     def test_disabled_search_returns_empty(self) -> None:
-        from headroom.audit.semantic import SemanticLogger
+        from headroom.usage.semantic import SemanticLogger
         logger = SemanticLogger(enabled=False)
         results = logger.search("test query")
         assert results == []
 
     def test_disabled_purge_returns_zero(self) -> None:
-        from headroom.audit.semantic import SemanticLogger
+        from headroom.usage.semantic import SemanticLogger
         logger = SemanticLogger(enabled=False)
         count = logger.purge_before(datetime(2099, 1, 1, tzinfo=timezone.utc))
         assert count == 0
 
     def test_disabled_ensure_collection_is_noop(self) -> None:
-        from headroom.audit.semantic import SemanticLogger
+        from headroom.usage.semantic import SemanticLogger
         logger = SemanticLogger(enabled=False)
         # Should not raise
         logger.ensure_collection()
@@ -62,7 +62,7 @@ class TestSemanticLoggerDisabled:
 class TestSemanticLoggerLive:
     @pytest.fixture
     def logger(self):
-        from headroom.audit.semantic import SemanticLogger
+        from headroom.usage.semantic import SemanticLogger
         return SemanticLogger(enabled=True)
 
     def test_ensure_collection_idempotent(self, logger) -> None:

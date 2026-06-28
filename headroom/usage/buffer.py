@@ -13,7 +13,7 @@ import logging
 from collections import deque
 from typing import Any
 
-log = logging.getLogger("headroom.audit.buffer")
+log = logging.getLogger("headroom.usage.buffer")
 
 DEFAULT_MAX_SIZE = 5000
 DEFAULT_BATCH_SIZE = 50
