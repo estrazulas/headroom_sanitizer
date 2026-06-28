@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from headroom.audit.buffer import AuditBuffer, DEFAULT_BATCH_SIZE
+from headroom.usage.buffer import AuditBuffer, DEFAULT_BATCH_SIZE
 
 
 class TestAuditBuffer:

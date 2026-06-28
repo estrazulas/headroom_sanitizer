@@ -79,6 +79,12 @@ def _register_commands() -> None:
     except ImportError:
         pass
 
+    # Usage analytics requires neo4j — optional
+    try:
+        from . import usage  # noqa: F401
+    except ImportError:
+        pass
+
     # Memory CLI requires numpy/hnswlib — optional
     try:
         from . import memory  # noqa: F401
