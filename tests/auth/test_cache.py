@@ -1,11 +1,9 @@
 """Unit tests for AuthCache (PRD 2 tasks 2.1-2.3)."""
 
-import asyncio
 import hashlib
 import time
 
 import pytest
-
 from headroom_auth.cache import AuthCache, CachedIdentity
 
 

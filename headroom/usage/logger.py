@@ -9,13 +9,12 @@ is never blocked.
 from __future__ import annotations
 
 import logging
-import os
-import uuid
 from datetime import datetime, timezone
+from typing import Any
 
 from headroom.usage.buffer import AuditBuffer
-from headroom.usage.store import AuditStore
 from headroom.usage.semantic import SemanticLogger
+from headroom.usage.store import AuditStore
 
 log = logging.getLogger("headroom.usage")
 

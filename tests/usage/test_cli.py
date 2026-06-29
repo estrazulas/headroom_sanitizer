@@ -4,7 +4,6 @@ CLI tests use Click's CliRunner. Neo4j-dependent commands are skipped.
 """
 
 import os
-from datetime import datetime, timezone
 
 import pytest
 from click.testing import CliRunner
@@ -51,8 +50,9 @@ class TestAuditCLIBasic:
         assert _parse_duration("3m") is not None
 
     def test_duration_parser_invalid(self) -> None:
-        from headroom.cli.usage import _parse_duration
         import click
+
+        from headroom.cli.usage import _parse_duration
         with pytest.raises(click.BadParameter, match="Invalid duration"):
             _parse_duration("foo")
 

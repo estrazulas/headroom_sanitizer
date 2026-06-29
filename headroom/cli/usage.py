@@ -14,11 +14,10 @@ import re
 from datetime import datetime, timedelta, timezone
 
 import click
-
-from .main import main
-
 from rich.console import Console
 from rich.table import Table
+
+from .main import main
 
 console = Console()
 
@@ -165,13 +164,12 @@ def usage_user(
     if self_scope:
         target_user_id = user_id
         display_name = caller_username
-        target_team = scope.team
     elif username:
         try:
             enforce_scope(scope, target_user=username)
         except AuditAccessError as e:
             click.echo(f"Error: {e}", err=True)
-            raise SystemExit(1)
+            raise SystemExit(1) from e
         # Resolve user_id from username via auth store
         from headroom.auth.store import Neo4jAuthStore
 
@@ -182,7 +180,6 @@ def usage_user(
             raise SystemExit(1)
         target_user_id = user.user_id
         display_name = username
-        target_team = user.team
     else:
         click.echo("Error: specify a username or --self.", err=True)
         raise SystemExit(1)
@@ -288,7 +285,7 @@ def usage_team(team_name: str, last_duration: str, by_model: bool) -> None:
         enforce_scope(scope, target_team=team_name)
     except AuditAccessError as e:
         click.echo(f"Error: {e}", err=True)
-        raise SystemExit(1)
+        raise SystemExit(1) from e
 
     since = _parse_duration(last_duration)
     store = AuditStore()
@@ -331,7 +328,6 @@ def usage_team(team_name: str, last_duration: str, by_model: bool) -> None:
 @click.option("--limit", "limit", default=10, type=int, help="Number of users to show.")
 def usage_top(last_duration: str, limit: int, by_tokens: bool, by_requests: bool) -> None:
     """Show top users by token or request consumption."""
-    from headroom.usage.access import resolve_scope
     from headroom.usage.store import AuditStore
 
     identity = _resolve_caller_identity()
@@ -435,7 +431,7 @@ def usage_search(
             enforce_scope(scope, target_user=filter_user)
         except AuditAccessError as e:
             click.echo(f"Error: {e}", err=True)
-            raise SystemExit(1)
+            raise SystemExit(1) from e
         # Resolve user_id
         from headroom.auth.store import Neo4jAuthStore
 
@@ -454,7 +450,7 @@ def usage_search(
         enforce_scope(scope, target_user=filter_user, target_team=filter_team)
     except AuditAccessError as e:
         click.echo(f"Error: {e}", err=True)
-        raise SystemExit(1)
+        raise SystemExit(1) from e
 
     since = _parse_duration(last_duration)
     semantic = SemanticLogger()
@@ -498,9 +494,9 @@ def usage_purge(before_date: str, skip_confirm: bool) -> None:
     """Remove audit data older than the given date (Neo4j + Qdrant)."""
     try:
         threshold = datetime.strptime(before_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
-    except ValueError:
+    except ValueError as e:
         click.echo("Error: invalid date format. Use YYYY-MM-DD.", err=True)
-        raise SystemExit(1)
+        raise SystemExit(1) from e
 
     if not skip_confirm:
         click.echo(f"Remove all audit data before {before_date}? [y/N] ", nl=False)

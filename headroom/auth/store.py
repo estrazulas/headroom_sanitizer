@@ -13,7 +13,7 @@ import secrets
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-from headroom.auth.crypto import FernetCrypto, FernetCryptoError
+from headroom.auth.crypto import FernetCrypto
 from headroom.auth.models import ApiKey, Role, Team, User
 
 log = logging.getLogger(__name__)

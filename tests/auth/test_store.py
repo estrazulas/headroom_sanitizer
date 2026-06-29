@@ -5,12 +5,11 @@ Skip if NEO4J_URI is not reachable.
 """
 
 import os
-import sys
 
 import pytest
 
 from headroom.auth.crypto import FernetCrypto
-from headroom.auth.store import AuthStoreError, Neo4jAuthStore
+from headroom.auth.store import Neo4jAuthStore
 
 
 def _neo4j_available() -> bool:

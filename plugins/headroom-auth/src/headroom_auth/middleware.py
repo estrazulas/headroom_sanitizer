@@ -125,7 +125,6 @@ class AuthMiddleware:
 
         try:
             # ---- 4. Rate limit check ----
-            from .rate_limiter import PerUserRateLimiter
 
             limiter = _get_rate_limiter()
             allowed, retry_after, rate_headers = await limiter.check_rate_limit(
@@ -211,7 +210,6 @@ class AuthMiddleware:
         Returns ``(identity, None)`` on success, or
         ``(None, (status, error_dict))`` on failure.
         """
-        import hashlib
 
         from .cache import CachedIdentity
 
@@ -262,9 +260,6 @@ class AuthMiddleware:
 
     async def _classify_key_failure(self, raw_key: str) -> tuple[int, dict]:
         """Determine *why* a key failed to resolve (invalid, expired, revoked, user inactive)."""
-        import hashlib
-
-        key_hash = hashlib.sha256(raw_key.encode("ascii")).hexdigest()
 
         # Check if the key exists at all (regardless of active/expiry).
         try:

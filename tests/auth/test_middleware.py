@@ -1,15 +1,12 @@
 """Unit tests for AuthMiddleware (PRD 2 tasks 6.1-6.5)."""
 
-import asyncio
 import hashlib
 import json
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
-
 from headroom_auth.cache import AuthCache, CachedIdentity
-from headroom_auth.middleware import AuthMiddleware, _HEALTH_CHECK_PATHS
-
+from headroom_auth.middleware import _HEALTH_CHECK_PATHS, AuthMiddleware
 
 # ---------------------------------------------------------------------------
 # helpers

@@ -4,7 +4,6 @@ import pytest
 
 from headroom.usage.access import (
     AuditAccessError,
-    Scope,
     enforce_scope,
     resolve_scope,
 )

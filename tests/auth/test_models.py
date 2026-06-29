@@ -1,6 +1,6 @@
 """Unit tests for auth data models."""
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from headroom.auth.models import ApiKey, Role, Team, User
 

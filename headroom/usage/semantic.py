@@ -65,7 +65,6 @@ class SemanticLogger:
     def _init_client(self) -> None:
         try:
             from qdrant_client import QdrantClient
-            from qdrant_client.models import Distance, VectorParams
 
             self._client = QdrantClient(url=self._url)
         except Exception as exc:
@@ -171,7 +170,7 @@ class SemanticLogger:
                 return []
             vector = embeddings[0].tolist()
 
-            from qdrant_client.models import Filter, FieldCondition, MatchValue, Range
+            from qdrant_client.models import FieldCondition, Filter, MatchValue, Range
 
             must_conditions = []
             if user_id:
@@ -231,7 +230,7 @@ class SemanticLogger:
         if not self.is_available:
             return 0
         try:
-            from qdrant_client.models import Filter, FieldCondition, Range
+            from qdrant_client.models import FieldCondition, Filter, Range
 
             # Qdrant doesn't support DELETE with filters in all versions.
             # We use scroll + delete by id.

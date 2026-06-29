@@ -1,6 +1,5 @@
 """Unit tests for provider injector (PRD 2 tasks 4.1-4.3)."""
 
-import pytest
 
 from headroom_auth.provider_injector import (
     PROVIDER_PATH_MAP,

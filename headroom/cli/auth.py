@@ -9,10 +9,10 @@ from typing import Any
 
 import click
 
-from .main import main
-
 from headroom.auth.crypto import FernetCrypto, FernetCryptoError
 from headroom.auth.store import AuthStoreError, Neo4jAuthStore
+
+from .main import main
 
 # ------------------------------------------------------------------
 # helpers
@@ -621,7 +621,6 @@ def create_role_cmd(name: str, description: str, as_user: str | None) -> None:
 @click.option("--as-user", default=None, help="Operate as a specific user.")
 def list_roles_cmd(as_user: str | None) -> None:
     """List all roles."""
-    identity = _resolve_identity(as_user)
     store = _get_store()
     try:
         roles = store.list_roles()
