@@ -2,6 +2,11 @@
 
 import pytest
 
+pytest.importorskip(
+    "cryptography",
+    reason="cryptography not installed — install headroom-ai[auth] or pip install cryptography",
+)
+
 from headroom.auth.crypto import FernetCrypto, FernetCryptoError
 
 
