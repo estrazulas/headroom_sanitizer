@@ -126,7 +126,9 @@ class TestMiddlewareAuth:
 
     def _middleware(self, store, crypto, cache, auth_enabled: bool = True):
         inner = _echo_app()
-        return AuthMiddleware(inner, auth_enabled=auth_enabled, store=store, crypto=crypto, auth_cache=cache)
+        return AuthMiddleware(
+            inner, auth_enabled=auth_enabled, store=store, crypto=crypto, auth_cache=cache
+        )
 
     # -- success path --
 
@@ -304,7 +306,9 @@ class TestMiddlewareNeo4jFallback:
 
     def _middleware(self, store, crypto, cache, auth_enabled: bool = True):
         inner = _echo_app()
-        return AuthMiddleware(inner, auth_enabled=auth_enabled, store=store, crypto=crypto, auth_cache=cache)
+        return AuthMiddleware(
+            inner, auth_enabled=auth_enabled, store=store, crypto=crypto, auth_cache=cache
+        )
 
     async def test_neo4j_down_stale_cache_served(self, store, crypto, cache) -> None:
         raw_key = "hr_stale_fallback_key"
@@ -372,7 +376,9 @@ class TestMiddlewareProviderInjection:
 
     def _middleware(self, store, crypto, cache):
         inner = _echo_app()
-        return AuthMiddleware(inner, auth_enabled=True, store=store, crypto=crypto, auth_cache=cache)
+        return AuthMiddleware(
+            inner, auth_enabled=True, store=store, crypto=crypto, auth_cache=cache
+        )
 
     async def test_provider_key_injected_in_forwarded_request(self, store, crypto, cache) -> None:
         mw = self._middleware(store, crypto, cache)
@@ -401,7 +407,9 @@ class TestMiddlewareRateLimiting:
 
     def _middleware(self, store, crypto, cache):
         inner = _echo_app()
-        return AuthMiddleware(inner, auth_enabled=True, store=store, crypto=crypto, auth_cache=cache)
+        return AuthMiddleware(
+            inner, auth_enabled=True, store=store, crypto=crypto, auth_cache=cache
+        )
 
     async def test_rate_limit_exceeded_returns_429(self, store, crypto, cache) -> None:
         raw_key = "hr_ratelimit_test_key"

@@ -19,9 +19,7 @@ class TestUser:
         assert isinstance(user.created_at, datetime)
 
     def test_user_respects_explicit_user_id(self) -> None:
-        user = User(
-            username="maria", role="team_lead", team="backend", user_id="u_custom"
-        )
+        user = User(username="maria", role="team_lead", team="backend", user_id="u_custom")
         assert user.user_id == "u_custom"
 
     def test_users_have_unique_ids(self) -> None:
@@ -40,7 +38,9 @@ class TestRole:
         assert role.default_tpm is None
 
     def test_role_with_provider_keys(self) -> None:
-        role = Role(name="developer", description="Dev role", provider_keys={"anthropic": "enc_xxx"})
+        role = Role(
+            name="developer", description="Dev role", provider_keys={"anthropic": "enc_xxx"}
+        )
         assert role.provider_keys["anthropic"] == "enc_xxx"
 
 

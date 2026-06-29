@@ -182,7 +182,9 @@ def _extract_user_message(outcome: Any) -> str:
     for msg in reversed(messages):
         role = msg.get("role", "") if isinstance(msg, dict) else getattr(msg, "role", "")
         if role == "user":
-            content = msg.get("content", "") if isinstance(msg, dict) else getattr(msg, "content", "")
+            content = (
+                msg.get("content", "") if isinstance(msg, dict) else getattr(msg, "content", "")
+            )
             if isinstance(content, list):
                 # Anthropic format: content is list of blocks
                 parts = []

@@ -87,9 +87,7 @@ def enforce_scope(
 
     if target_user is not None and target_user != scope.username:
         if scope.role == "developer":
-            raise AuditAccessError(
-                "You can only view your own requests. Use --self."
-            )
+            raise AuditAccessError("You can only view your own requests. Use --self.")
         if scope.role == "team_lead" and target_team is not None:
             if target_team != scope.team:
                 raise AuditAccessError(
@@ -99,12 +97,8 @@ def enforce_scope(
                 )
         elif scope.role == "team_lead":
             # target_team not provided — fall back to blocking (conservative)
-            raise AuditAccessError(
-                f"You can only view requests from your team ({scope.team})."
-            )
+            raise AuditAccessError(f"You can only view requests from your team ({scope.team}).")
 
     if target_team is not None and target_team != scope.team:
         if scope.role != "admin":
-            raise AuditAccessError(
-                f"Team '{target_team}' is outside your scope."
-            )
+            raise AuditAccessError(f"Team '{target_team}' is outside your scope.")

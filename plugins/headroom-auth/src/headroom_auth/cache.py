@@ -139,11 +139,7 @@ class AuthCache:
         """
         threshold = time.monotonic() - self._stale_grace
         async with self._lock:
-            stale = [
-                h
-                for h, e in self._entries.items()
-                if e.last_accessed < threshold
-            ]
+            stale = [h for h, e in self._entries.items() if e.last_accessed < threshold]
             for h in stale:
                 del self._entries[h]
         if stale:

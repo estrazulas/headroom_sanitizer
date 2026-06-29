@@ -42,18 +42,12 @@ class AuditStore:
         try:
             from neo4j import GraphDatabase
 
-            self._driver = GraphDatabase.driver(
-                self._uri, auth=(self._user, self._pwd)
-            )
+            self._driver = GraphDatabase.driver(self._uri, auth=(self._user, self._pwd))
             return self._driver
         except ImportError:
-            raise AuditStoreError(
-                "Neo4j driver (neo4j package) is not installed."
-            ) from None
+            raise AuditStoreError("Neo4j driver (neo4j package) is not installed.") from None
         except Exception as exc:
-            raise AuditStoreError(
-                f"Failed to connect to Neo4j at {self._uri}."
-            ) from exc
+            raise AuditStoreError(f"Failed to connect to Neo4j at {self._uri}.") from exc
 
     def close(self) -> None:
         if self._driver is not None:

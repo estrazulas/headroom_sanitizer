@@ -1,6 +1,5 @@
 """Unit tests for provider injector (PRD 2 tasks 4.1-4.3)."""
 
-
 from headroom_auth.provider_injector import (
     PROVIDER_PATH_MAP,
     inject_provider_key,
@@ -63,9 +62,7 @@ class TestInjectProviderKey:
             (b"content-type", b"application/json"),
             (b"x-request-id", b"abc123"),
         ]
-        new_headers, err = inject_provider_key(
-            headers, {"openai": "sk-proj-real"}, "openai"
-        )
+        new_headers, err = inject_provider_key(headers, {"openai": "sk-proj-real"}, "openai")
         assert err is None
         assert (b"content-type", b"application/json") in new_headers
         assert (b"x-request-id", b"abc123") in new_headers
@@ -74,9 +71,7 @@ class TestInjectProviderKey:
         headers: list[tuple[bytes, bytes]] = [
             (b"authorization", b"Bearer hr_old"),
         ]
-        new_headers, err = inject_provider_key(
-            headers, {"anthropic": "sk-ant-new"}, "anthropic"
-        )
+        new_headers, err = inject_provider_key(headers, {"anthropic": "sk-ant-new"}, "anthropic")
         assert err is None
         auth_values = [v for k, v in new_headers if k.lower() == b"authorization"]
         assert len(auth_values) == 1
@@ -84,9 +79,7 @@ class TestInjectProviderKey:
 
     def test_missing_provider_key_returns_error(self) -> None:
         headers: list[tuple[bytes, bytes]] = [(b"authorization", b"Bearer hr_test")]
-        new_headers, err = inject_provider_key(
-            headers, {"anthropic": "sk-ant-test"}, "openai"
-        )
+        new_headers, err = inject_provider_key(headers, {"anthropic": "sk-ant-test"}, "openai")
         assert err is not None
         assert err["error"] == "provider_key_not_configured"
         assert "openai" in err["message"]

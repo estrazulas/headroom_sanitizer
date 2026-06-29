@@ -31,9 +31,7 @@ def _parse_duration(raw: str) -> datetime:
     """Parse ``--last 24h / 7d / 2w / 3m`` into a ``datetime`` threshold."""
     m = re.match(r"^(\d+)\s*(h|d|w|m)$", raw.strip())
     if not m:
-        raise click.BadParameter(
-            f"Invalid duration '{raw}'. Use format: 24h, 7d, 2w, 3m."
-        )
+        raise click.BadParameter(f"Invalid duration '{raw}'. Use format: 24h, 7d, 2w, 3m.")
     value = int(m.group(1))
     unit = m.group(2)
     now = datetime.now(timezone.utc)
@@ -120,8 +118,12 @@ def usage_group() -> None:
 @click.option("--last", "last_duration", default="7d", help="Time range (e.g., 24h, 7d, 2w).")
 @click.option("--by-day", is_flag=True, help="Break down by day.")
 @click.option("--by-model", is_flag=True, help="Break down by model.")
-@click.option("--history", is_flag=True, help="Show individual request history instead of aggregates.")
-@click.option("--limit", "history_limit", type=int, default=25, help="Max entries with --history (1-100).")
+@click.option(
+    "--history", is_flag=True, help="Show individual request history instead of aggregates."
+)
+@click.option(
+    "--limit", "history_limit", type=int, default=25, help="Max entries with --history (1-100)."
+)
 def usage_user(
     username: str | None,
     self_scope: bool,
@@ -141,18 +143,20 @@ def usage_user(
         headroom usage user alice --history --last 7d --limit 10
     """
     from headroom.usage.access import AuditAccessError, enforce_scope, resolve_scope
+
     # Validate flags early — no Neo4j access needed
     if history and (by_day or by_model):
-        raise click.UsageError(
-            "--history is mutually exclusive with --by-day and --by-model."
-        )
+        raise click.UsageError("--history is mutually exclusive with --by-day and --by-model.")
     history_limit = max(1, min(history_limit, 100))
 
     from headroom.usage.store import AuditStore
 
     identity = _resolve_caller_identity()
     if identity is None:
-        click.echo("Error: could not resolve your identity. Set HEADROOM_API_KEY or run inside the proxy.", err=True)
+        click.echo(
+            "Error: could not resolve your identity. Set HEADROOM_API_KEY or run inside the proxy.",
+            err=True,
+        )
         raise SystemExit(1)
 
     user_id, caller_username, role, team = identity
@@ -322,7 +326,9 @@ def usage_team(team_name: str, last_duration: str, by_model: bool) -> None:
 
 
 @usage_group.command("top")
-@click.option("--by-tokens", "by_tokens", is_flag=True, default=True, help="Rank by tokens (default).")
+@click.option(
+    "--by-tokens", "by_tokens", is_flag=True, default=True, help="Rank by tokens (default)."
+)
 @click.option("--by-requests", "by_requests", is_flag=True, help="Rank by request count.")
 @click.option("--last", "last_duration", default="7d", help="Time range.")
 @click.option("--limit", "limit", default=10, type=int, help="Number of users to show.")
@@ -477,7 +483,9 @@ def usage_search(
 
     console.print(f"[bold]{len(results)} results[/bold] (similarity > {min_score}):")
     for i, r in enumerate(results, 1):
-        console.print(f"\n[bold]{i}.[/bold] [{r.get('username', '?')}] — score: {r.get('score', 0):.2f}")
+        console.print(
+            f"\n[bold]{i}.[/bold] [{r.get('username', '?')}] — score: {r.get('score', 0):.2f}"
+        )
         console.print(f"  {r.get('summary', '')[:120]}...")
         console.print(f"  model: {r.get('model', '?')} | timestamp: {r.get('timestamp', '?')}")
 
@@ -488,7 +496,9 @@ def usage_search(
 
 
 @usage_group.command("purge")
-@click.option("--before", "before_date", required=True, help="Purge records before this date (YYYY-MM-DD).")
+@click.option(
+    "--before", "before_date", required=True, help="Purge records before this date (YYYY-MM-DD)."
+)
 @click.option("--yes", "skip_confirm", is_flag=True, help="Skip confirmation prompt.")
 def usage_purge(before_date: str, skip_confirm: bool) -> None:
     """Remove audit data older than the given date (Neo4j + Qdrant)."""

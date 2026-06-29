@@ -178,13 +178,9 @@ class SemanticLogger:
                     FieldCondition(key="user_id", match=MatchValue(value=user_id))
                 )
             if team:
-                must_conditions.append(
-                    FieldCondition(key="team", match=MatchValue(value=team))
-                )
+                must_conditions.append(FieldCondition(key="team", match=MatchValue(value=team)))
             if model:
-                must_conditions.append(
-                    FieldCondition(key="model", match=MatchValue(value=model))
-                )
+                must_conditions.append(FieldCondition(key="model", match=MatchValue(value=model)))
             if since:
                 must_conditions.append(
                     FieldCondition(

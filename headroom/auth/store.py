@@ -62,9 +62,7 @@ class Neo4jAuthStore:
         try:
             from neo4j import GraphDatabase
 
-            self._driver = GraphDatabase.driver(
-                self._uri, auth=(self._user, self._pwd)
-            )
+            self._driver = GraphDatabase.driver(self._uri, auth=(self._user, self._pwd))
             return self._driver
         except ImportError:
             raise AuthStoreError(
@@ -129,10 +127,7 @@ class Neo4jAuthStore:
         ]
         constraint_count = 0
         for label, prop in constraints:
-            cypher = (
-                f"CREATE CONSTRAINT IF NOT EXISTS FOR (n:{label}) "
-                f"REQUIRE n.{prop} IS UNIQUE"
-            )
+            cypher = f"CREATE CONSTRAINT IF NOT EXISTS FOR (n:{label}) REQUIRE n.{prop} IS UNIQUE"
             self._run(cypher)
             constraint_count += 1
 
@@ -315,9 +310,7 @@ class Neo4jAuthStore:
         """SHA-256 hex digest of a key string."""
         return hashlib.sha256(key.encode("ascii")).hexdigest()
 
-    def create_key(
-        self, username: str, ttl_days: int = 90
-    ) -> tuple[str, ApiKey]:
+    def create_key(self, username: str, ttl_days: int = 90) -> tuple[str, ApiKey]:
         """Generate a new API key for a user.
 
         Returns ``(raw_key, api_key_model)``. The raw key is shown only
@@ -523,10 +516,7 @@ class Neo4jAuthStore:
             keys: dict[str, str] = json.loads(raw)
         except (json.JSONDecodeError, TypeError):
             return []
-        return [
-            {"provider": provider, "status": "configured"}
-            for provider in keys
-        ]
+        return [{"provider": provider, "status": "configured"} for provider in keys]
 
     def get_provider_key(self, role_name: str, provider: str) -> str | None:
         """Decrypt and return a provider key for runtime use (PRD 2)."""

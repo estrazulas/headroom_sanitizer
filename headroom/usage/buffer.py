@@ -93,9 +93,8 @@ class AuditBuffer:
         last_flush = asyncio.get_event_loop().time()
         while self._running:
             elapsed = asyncio.get_event_loop().time() - last_flush
-            should_flush = (
-                len(self._deque) >= self._batch_size
-                or (self._deque and elapsed >= self._flush_interval)
+            should_flush = len(self._deque) >= self._batch_size or (
+                self._deque and elapsed >= self._flush_interval
             )
             if should_flush:
                 batch = []

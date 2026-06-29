@@ -94,9 +94,7 @@ class ApiKey:
     key_id: str = ""
     is_active: bool = True
     created_at: datetime = field(default_factory=_utcnow)
-    expires_at: datetime = field(
-        default_factory=lambda: _utcnow() + timedelta(days=90)
-    )
+    expires_at: datetime = field(default_factory=lambda: _utcnow() + timedelta(days=90))
 
     def __post_init__(self) -> None:
         import uuid

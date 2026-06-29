@@ -181,6 +181,7 @@ class TestAuthCLI:
 
     def test_set_provider_key(self, runner: CliRunner) -> None:
         from headroom.auth.crypto import FernetCrypto
+
         key = FernetCrypto.generate_key()
         os.environ["HEADROOM_ENCRYPTION_KEY"] = key
         try:
@@ -211,7 +212,7 @@ class TestAuthCLI:
         )
         raw_result = runner.invoke(auth_group, ["create-key", name])
         # Extract the key from output (strip ANSI escape codes from Click styling)
-        clean = re.sub(r'\x1b\[[0-9;]*m', '', raw_result.output)
+        clean = re.sub(r"\x1b\[[0-9;]*m", "", raw_result.output)
         api_key = None
         for line in clean.split("\n"):
             stripped = line.strip()

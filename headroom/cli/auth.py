@@ -44,7 +44,12 @@ def _resolve_identity(as_user: str | None = None) -> dict[str, Any]:
         user = store.get_user(identity)
         if user is None:
             return {}
-        return {"user_id": user.user_id, "username": user.username, "role": user.role, "team": user.team}
+        return {
+            "user_id": user.user_id,
+            "username": user.username,
+            "role": user.role,
+            "team": user.team,
+        }
     finally:
         store.close()
 
@@ -140,7 +145,9 @@ def init_db_cmd(ctx: click.Context, yes: bool) -> None:
 
 @auth_group.command(name="create-user")
 @click.argument("username")
-@click.option("--role", "-r", required=True, help="Role name (admin, team_lead, developer, viewer).")
+@click.option(
+    "--role", "-r", required=True, help="Role name (admin, team_lead, developer, viewer)."
+)
 @click.option("--team", "-t", required=True, help="Team name.")
 @click.option("--as-user", default=None, help="Operate as a specific user (for RBAC).")
 @click.option("--json", "json_flag", is_flag=True, help="Output as JSON.")
@@ -157,9 +164,7 @@ def create_user_cmd(
     identity = _resolve_identity(as_user)
     op_role = identity.get("role", "admin")
     if op_role not in {"admin", "team_lead"}:
-        raise click.ClickException(
-            "Access denied: only admin and team_lead can create users."
-        )
+        raise click.ClickException("Access denied: only admin and team_lead can create users.")
     if op_role == "team_lead" and team != identity.get("team", ""):
         raise click.ClickException(
             f"Access denied: team_lead can only create users in team '{identity['team']}'."
@@ -176,13 +181,17 @@ def create_user_cmd(
             )
         user = store.create_user(username, role, team)
         if json_flag:
-            click.echo(json.dumps({
-                "username": user.username,
-                "role": user.role,
-                "team": user.team,
-                "user_id": user.user_id,
-                "is_active": user.is_active,
-            }))
+            click.echo(
+                json.dumps(
+                    {
+                        "username": user.username,
+                        "role": user.role,
+                        "team": user.team,
+                        "user_id": user.user_id,
+                        "is_active": user.is_active,
+                    }
+                )
+            )
         else:
             click.echo(
                 f"User created: {user.username} (role: {user.role}, "
@@ -370,7 +379,12 @@ def create_key_cmd(username: str, ttl_days: int, as_user: str | None) -> None:
 
 @auth_group.command(name="list-keys")
 @click.option("--user", "username", default=None, help="Filter by username.")
-@click.option("--self", "self_flag", is_flag=True, help="List keys for the current user (uses HEADROOM_AUTH_USER).")
+@click.option(
+    "--self",
+    "self_flag",
+    is_flag=True,
+    help="List keys for the current user (uses HEADROOM_AUTH_USER).",
+)
 @click.option("--json", "json_flag", is_flag=True, help="Output as JSON.")
 @click.option("--as-user", default=None, help="Operate as a specific user.")
 def list_keys_cmd(
@@ -386,9 +400,7 @@ def list_keys_cmd(
     try:
         if self_flag:
             if not identity:
-                raise click.ClickException(
-                    "HEADROOM_AUTH_USER not set. Set it or use --as-user."
-                )
+                raise click.ClickException("HEADROOM_AUTH_USER not set. Set it or use --as-user.")
             username = identity["username"]
         if role == "team_lead" and username is None:
             # team_lead without --user sees only their team's keys
@@ -402,10 +414,14 @@ def list_keys_cmd(
         # Filter by team for team_lead
         if role == "team_lead" and username is None:
             team = identity["team"]
-            keys = [k for k in keys if k.get("team") == team
-                    or store.get_user(k.get("username", "")) is not None
-                    and (u := store.get_user(k.get("username", ""))) is not None
-                    and u.team == team]
+            keys = [
+                k
+                for k in keys
+                if k.get("team") == team
+                or store.get_user(k.get("username", "")) is not None
+                and (u := store.get_user(k.get("username", ""))) is not None
+                and u.team == team
+            ]
             # Simplified: filter after getting team info
             filtered = []
             for k in keys:
@@ -416,6 +432,7 @@ def list_keys_cmd(
             keys = filtered
         # Compute status for each key
         from datetime import datetime, timezone
+
         now = datetime.now(timezone.utc)
         for k in keys:
             if not k.get("is_active"):
@@ -435,10 +452,13 @@ def list_keys_cmd(
         else:
             headers = ["key_id", "prefix", "status", "expires_at"]
             rows = [
-                [k["key_id"], k["key_prefix"],
-                 k.get("status", "active"),
-                 str(k.get("expires_at", "—"))[:10]
-                 + (f" ({_days_until(k['expires_at'])} days)" if k.get("expires_at") else "")]
+                [
+                    k["key_id"],
+                    k["key_prefix"],
+                    k.get("status", "active"),
+                    str(k.get("expires_at", "—"))[:10]
+                    + (f" ({_days_until(k['expires_at'])} days)" if k.get("expires_at") else ""),
+                ]
                 for k in keys
             ]
             click.echo(_format_table(headers, rows))
@@ -453,6 +473,7 @@ def _days_until(expires_at: Any) -> int:
     if expires_at is None:
         return 0
     from datetime import datetime, timezone
+
     now = datetime.now(timezone.utc)
     if isinstance(expires_at, str):
         expires_at = datetime.fromisoformat(expires_at)
@@ -490,7 +511,9 @@ def revoke_key_cmd(key_id: str, as_user: str | None) -> None:
 @auth_group.command(name="set-provider-key")
 @click.argument("role")
 @click.argument("provider")
-@click.option("--stdin", "from_stdin", is_flag=True, help="Read the key from stdin instead of prompting.")
+@click.option(
+    "--stdin", "from_stdin", is_flag=True, help="Read the key from stdin instead of prompting."
+)
 @click.option("--as-user", default=None, help="Operate as a specific user.")
 def set_provider_key_cmd(
     role: str,
@@ -509,9 +532,7 @@ def set_provider_key_cmd(
     if from_stdin:
         api_key = sys.stdin.read().strip()
     else:
-        api_key = click.prompt(
-            f"Enter {provider} API key", hide_input=True, default=""
-        )
+        api_key = click.prompt(f"Enter {provider} API key", hide_input=True, default="")
     if not api_key:
         raise click.ClickException("API key cannot be empty.")
     # Validate by making a test request to the provider
@@ -544,6 +565,7 @@ def _validate_provider_key(provider: str, api_key: str) -> None:
     method, url = info
     try:
         import urllib.request
+
         req = urllib.request.Request(url, method=method)
         if provider == "anthropic":
             req.add_header("x-api-key", api_key)
@@ -639,7 +661,9 @@ def list_roles_cmd(as_user: str | None) -> None:
 
 
 @auth_group.command(name="whoami")
-@click.option("--stdin", "from_stdin", is_flag=True, help="Read the key from stdin instead of prompting.")
+@click.option(
+    "--stdin", "from_stdin", is_flag=True, help="Read the key from stdin instead of prompting."
+)
 def whoami_cmd(from_stdin: bool) -> None:
     """Resolve a proxy API key to its owner identity. Key is read via prompt."""
     if from_stdin:

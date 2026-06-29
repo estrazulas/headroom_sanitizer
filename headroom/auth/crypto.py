@@ -34,8 +34,7 @@ class FernetCrypto:
         env_key = os.environ.get("HEADROOM_ENCRYPTION_KEY", "")
         if not env_key:
             raise FernetCryptoError(
-                "HEADROOM_ENCRYPTION_KEY is not set. "
-                "Generate one with: headroom auth generate-key"
+                "HEADROOM_ENCRYPTION_KEY is not set. Generate one with: headroom auth generate-key"
             )
         return env_key
 

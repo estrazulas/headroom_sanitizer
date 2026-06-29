@@ -2105,6 +2105,7 @@ def create_app(config: ProxyConfig | None = None) -> FastAPI:
             # Flush and stop audit buffer (PRD 3)
             try:
                 from headroom.usage.logger import stop_audit_logger
+
                 await stop_audit_logger()
             except Exception:
                 logger.debug("audit logger stop skipped", exc_info=True)

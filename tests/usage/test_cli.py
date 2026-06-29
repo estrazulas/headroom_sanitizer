@@ -15,6 +15,7 @@ def _neo4j_available() -> bool:
     password = os.environ.get("NEO4J_PASSWORD", "")
     try:
         from neo4j import GraphDatabase
+
         driver = GraphDatabase.driver(uri, auth=(user, password))
         with driver.session() as session:
             session.run("RETURN 1")
@@ -33,6 +34,7 @@ class TestAuditCLIBasic:
 
     def test_usage_group_help(self, runner: CliRunner) -> None:
         from headroom.cli.usage import usage_group
+
         result = runner.invoke(usage_group, ["--help"])
         assert result.exit_code == 0
         assert "user" in result.output
@@ -44,6 +46,7 @@ class TestAuditCLIBasic:
 
     def test_duration_parser_valid(self) -> None:
         from headroom.cli.usage import _parse_duration
+
         assert _parse_duration("24h") is not None
         assert _parse_duration("7d") is not None
         assert _parse_duration("2w") is not None
@@ -53,12 +56,14 @@ class TestAuditCLIBasic:
         import click
 
         from headroom.cli.usage import _parse_duration
+
         with pytest.raises(click.BadParameter, match="Invalid duration"):
             _parse_duration("foo")
 
     @pytest.mark.skipif(not _neo4j_available(), reason="Neo4j not available")
     def test_audit_user_self(self, runner: CliRunner) -> None:
         from headroom.cli.usage import audit_user
+
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
         result = runner.invoke(audit_user, ["--self", "--last", "24h"])
         # Will fail identity resolution but the command parses correctly
@@ -67,6 +72,7 @@ class TestAuditCLIBasic:
     @pytest.mark.skipif(not _neo4j_available(), reason="Neo4j not available")
     def test_audit_summary(self, runner: CliRunner) -> None:
         from headroom.cli.usage import audit_summary
+
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
         result = runner.invoke(audit_summary, ["--last", "24h"])
         assert "could not resolve" in result.output.lower() or result.exit_code == 0
@@ -74,6 +80,7 @@ class TestAuditCLIBasic:
     def test_usage_user_history_flag(self, runner: CliRunner) -> None:
         """--history flag parses correctly even when identity can't resolve."""
         from headroom.cli.usage import usage_user
+
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
         result = runner.invoke(usage_user, ["--self", "--history", "--last", "24h"])
         assert "could not resolve" in result.output.lower() or result.exit_code == 0
@@ -81,6 +88,7 @@ class TestAuditCLIBasic:
     def test_usage_user_history_limit(self, runner: CliRunner) -> None:
         """--history accepts --limit flag."""
         from headroom.cli.usage import usage_user
+
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
         result = runner.invoke(usage_user, ["--self", "--history", "--limit", "10"])
         assert "could not resolve" in result.output.lower() or result.exit_code == 0
@@ -88,6 +96,7 @@ class TestAuditCLIBasic:
     def test_history_by_day_conflict(self, runner: CliRunner) -> None:
         """--history and --by-day are mutually exclusive."""
         from headroom.cli.usage import usage_user
+
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
         result = runner.invoke(usage_user, ["--self", "--history", "--by-day"])
         assert result.exit_code != 0
@@ -96,6 +105,7 @@ class TestAuditCLIBasic:
     def test_history_access_control_developer_cannot_view_other(self, runner: CliRunner) -> None:
         """A developer with --self can only see their own history."""
         from headroom.cli.usage import usage_user
+
         os.environ["HEADROOM_API_KEY"] = "hr_invalid_key_for_test"
         result = runner.invoke(usage_user, ["someone_else", "--history"])
         assert result.exit_code != 0

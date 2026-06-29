@@ -1,6 +1,5 @@
 """Unit tests for per-user rate limiter (PRD 2 tasks 5.1-5.3)."""
 
-
 import pytest
 from headroom_auth.rate_limiter import PerUserRateLimiter, rate_limit_error
 
@@ -50,7 +49,9 @@ class TestPerUserRateLimiter:
         assert allowed is True
         assert headers["X-RateLimit-Limit"] == "60"
 
-    async def test_rate_limit_exceeded_returns_false_with_retry(self, limiter: PerUserRateLimiter) -> None:
+    async def test_rate_limit_exceeded_returns_false_with_retry(
+        self, limiter: PerUserRateLimiter
+    ) -> None:
         # Exhaust bucket
         for _ in range(60):
             await limiter.check_rate_limit("u_full", rpm=60, tpm=100_000)

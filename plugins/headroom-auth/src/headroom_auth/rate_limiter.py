@@ -147,8 +147,7 @@ class PerUserRateLimiter:
 
         threshold = now - 600  # 10 minutes
         stale_requests = [
-            uid for uid, b in self._request_buckets.items()
-            if b.last_update < threshold
+            uid for uid, b in self._request_buckets.items() if b.last_update < threshold
         ]
         for uid in stale_requests:
             del self._request_buckets[uid]

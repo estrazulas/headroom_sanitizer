@@ -30,6 +30,7 @@ class TestAuditStore:
     @pytest.fixture
     def store(self):
         from headroom.usage.store import AuditStore
+
         return AuditStore()
 
     def test_insert_batch_empty(self, store) -> None:
@@ -37,6 +38,7 @@ class TestAuditStore:
 
     def test_insert_batch_and_query_summary(self, store) -> None:
         from headroom.auth.store import Neo4jAuthStore
+
         auth = Neo4jAuthStore()
         auth.init_db()
         # Ensure user exists
@@ -47,21 +49,23 @@ class TestAuditStore:
         user = auth.get_user("audit_test_user")
         assert user is not None
 
-        entries = [{
-            "request_id": "req_test_001",
-            "user_id": user.user_id,
-            "username": user.username,
-            "team": user.team,
-            "provider": "anthropic",
-            "model": "claude-sonnet-4-6",
-            "input_tokens": 3200,
-            "output_tokens": 1100,
-            "tokens_saved": 200,
-            "latency_ms": 1200.0,
-            "cache_hit": False,
-            "status_code": 200,
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        }]
+        entries = [
+            {
+                "request_id": "req_test_001",
+                "user_id": user.user_id,
+                "username": user.username,
+                "team": user.team,
+                "provider": "anthropic",
+                "model": "claude-sonnet-4-6",
+                "input_tokens": 3200,
+                "output_tokens": 1100,
+                "tokens_saved": 200,
+                "latency_ms": 1200.0,
+                "cache_hit": False,
+                "status_code": 200,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        ]
         count = store.insert_batch(entries)
         assert count == 1
 
@@ -71,6 +75,7 @@ class TestAuditStore:
 
     def test_query_user_usage(self, store) -> None:
         from headroom.auth.store import Neo4jAuthStore
+
         auth = Neo4jAuthStore()
         user = auth.get_user("audit_test_user")
         if user is None:
@@ -94,7 +99,5 @@ class TestAuditStore:
 
     def test_get_user_history_with_team_filter(self, store) -> None:
         """get_user_history accepts optional team parameter."""
-        rows = store.get_user_history(
-            "u_nonexistent", limit=5, team="backend"
-        )
+        rows = store.get_user_history("u_nonexistent", limit=5, team="backend")
         assert isinstance(rows, list)

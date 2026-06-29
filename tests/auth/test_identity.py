@@ -1,7 +1,5 @@
 """Unit tests for identity contextvars (PRD 2 tasks 3.1-3.2)."""
 
-
-
 from headroom_auth.identity import (
     clear_current_identity,
     get_current_role,

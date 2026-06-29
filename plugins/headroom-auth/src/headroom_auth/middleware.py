@@ -19,9 +19,7 @@ from .rate_limiter import rate_limit_error
 log = logging.getLogger("headroom_auth.middleware")
 
 # Endpoints that never require authentication.
-_HEALTH_CHECK_PATHS: frozenset[str] = frozenset(
-    {"/livez", "/readyz", "/health", "/metrics"}
-)
+_HEALTH_CHECK_PATHS: frozenset[str] = frozenset({"/livez", "/readyz", "/health", "/metrics"})
 
 
 def _json_response(status: int, body: dict[str, Any]) -> dict[str, Any]:
@@ -136,9 +134,7 @@ class AuthMiddleware:
                 start, body = _json_response(429, rate_limit_error(retry_after))
                 # Merge Retry-After into response headers.
                 resp_headers = list(start["headers"])
-                resp_headers.append(
-                    (b"retry-after", str(int(retry_after)).encode())
-                )
+                resp_headers.append((b"retry-after", str(int(retry_after)).encode()))
                 start["headers"] = resp_headers
                 await send(start)
                 await send(body)
@@ -223,9 +219,7 @@ class AuthMiddleware:
         # 2. Cache miss — query Neo4j in executor (blocking)
         try:
             loop = asyncio.get_running_loop()
-            result = await loop.run_in_executor(
-                None, self._store.resolve_key_identity, raw_key
-            )
+            result = await loop.run_in_executor(None, self._store.resolve_key_identity, raw_key)
         except Exception as exc:
             log.warning(
                 "auth-middleware: Neo4j query failed for key hash %s: %s",
@@ -264,9 +258,7 @@ class AuthMiddleware:
         # Check if the key exists at all (regardless of active/expiry).
         try:
             loop = asyncio.get_running_loop()
-            owner = await loop.run_in_executor(
-                None, self._store.get_key_owner, raw_key
-            )
+            owner = await loop.run_in_executor(None, self._store.get_key_owner, raw_key)
         except Exception:
             # Neo4j is down and no stale cache — already handled above.
             return 503, {

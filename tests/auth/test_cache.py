@@ -11,9 +11,7 @@ class TestCachedIdentity:
     """CachedIdentity construction and defaults."""
 
     def test_identity_defaults(self) -> None:
-        ident = CachedIdentity(
-            user_id="u_test", username="joao", role="developer", team="backend"
-        )
+        ident = CachedIdentity(user_id="u_test", username="joao", role="developer", team="backend")
         assert ident.user_id == "u_test"
         assert ident.username == "joao"
         assert ident.role == "developer"
