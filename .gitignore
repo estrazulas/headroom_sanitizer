@@ -262,3 +262,6 @@ uv.lock
 dummy/
 .env.test
 .venv-test/
+# OpenSpec — docs moved to docs_sdd; keep commands local only
+.github/skills/openspec-*/
+.github/prompts/opsx-*
