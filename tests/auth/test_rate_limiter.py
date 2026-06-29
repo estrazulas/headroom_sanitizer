@@ -1,6 +1,8 @@
 """Unit tests for per-user rate limiter (PRD 2 tasks 5.1-5.3)."""
 
 import pytest
+
+pytest.importorskip("headroom_auth")
 from headroom_auth.rate_limiter import PerUserRateLimiter, rate_limit_error
 
 

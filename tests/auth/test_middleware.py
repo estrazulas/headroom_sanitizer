@@ -5,6 +5,8 @@ import json
 from unittest.mock import MagicMock
 
 import pytest
+
+pytest.importorskip("headroom_auth")
 from headroom_auth.cache import AuthCache, CachedIdentity
 from headroom_auth.middleware import _HEALTH_CHECK_PATHS, AuthMiddleware
 

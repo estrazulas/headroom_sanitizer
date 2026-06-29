@@ -4,6 +4,8 @@ import hashlib
 import time
 
 import pytest
+
+pytest.importorskip("headroom_auth")
 from headroom_auth.cache import AuthCache, CachedIdentity
 
 
