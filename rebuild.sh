@@ -12,7 +12,18 @@ else
   echo "   Remote 'upstream' não configurado. Pulando sync."
 fi
 
+echo ""
+echo "=== Quality checks ==="
+echo "  ruff check..."
+ruff check .
+echo "  ruff format..."
+ruff format --check .
+echo "  mypy..."
+mypy headroom --ignore-missing-imports
+echo "  OK — all quality checks passed"
+
 VERSAO=$(grep 'version = ' pyproject.toml | head -1 | sed 's/.*"\(.*\)".*/\1/')
+echo ""
 echo "=== Compilando headroom v${VERSAO} ==="
 rm -rf dist/
 maturin build --release --out dist/
