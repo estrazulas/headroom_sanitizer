@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import base64
 import os
+from typing import Any
 
 
 class FernetCrypto:
@@ -20,7 +21,7 @@ class FernetCrypto:
         environment variable is read.
         """
         self._key: str | None = encryption_key
-        self._fernet: object | None = None
+        self._fernet: Any | None = None
 
     # ------------------------------------------------------------------
     # internal helpers
@@ -54,7 +55,7 @@ class FernetCrypto:
                 f"decoded to {len(raw)} bytes, expected 32."
             )
 
-    def _get_fernet(self) -> object:
+    def _get_fernet(self) -> Any:
         """Return (and cache) the Fernet instance for the configured key."""
         if self._fernet is not None:
             return self._fernet
@@ -114,9 +115,9 @@ class FernetCrypto:
         """
         from cryptography.fernet import Fernet
 
-        return Fernet.generate_key().decode("ascii")
+        return Fernet.generate_key().decode("ascii")  # type: ignore[no-any-return]
 
-    def _fernet_for_key(self, key: str) -> object:
+    def _fernet_for_key(self, key: str) -> Any:
         """Build a one-off Fernet instance for a specific *key*."""
         from cryptography.fernet import Fernet
 

@@ -5,7 +5,10 @@ from __future__ import annotations
 import json
 import os
 import sys
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 import click
 
@@ -468,7 +471,7 @@ def list_keys_cmd(
         store.close()
 
 
-def _days_until(expires_at: Any) -> int:
+def _days_until(expires_at: datetime | str | None) -> int:
     """Return days until expiration."""
     if expires_at is None:
         return 0

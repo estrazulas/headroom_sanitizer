@@ -430,6 +430,8 @@ def usage_search(
     user_id, caller_username, role, team = identity
     scope = resolve_scope(user_id, caller_username, role, team)
 
+    resolved_user: str | None = None
+
     if self_scope:
         resolved_user = user_id
     elif filter_user:
